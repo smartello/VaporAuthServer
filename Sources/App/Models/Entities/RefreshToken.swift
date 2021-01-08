@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 final class RefreshToken: Model {
-    static let schema = "user_refresh_tokens"
+    static let schema = "refresh_tokens"
     
     @ID(key: .id)
     var id: UUID?

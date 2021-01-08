@@ -2,7 +2,7 @@ import Fluent
 
 struct CreateEmailToken: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("user_email_tokens")
+        return database.schema("email_tokens")
             .id()
             .field("user_id", .uuid, .required, .references("users", "id", onDelete: .cascade))
             .field("token", .string, .required)
@@ -13,6 +13,6 @@ struct CreateEmailToken: Migration {
     }
     
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("user_email_tokens").delete()
+        return database.schema("email_tokens").delete()
     }
 }

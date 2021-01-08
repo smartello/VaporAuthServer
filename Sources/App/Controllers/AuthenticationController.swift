@@ -40,14 +40,45 @@ struct AuthenticationController: RouteCollection {
     
     func login(_ req: Request) throws -> EventLoopFuture<LoginResponse>  {
         try LoginRequest.validate(content: req)
+        
         let loginRequest = try req.content.decode(LoginRequest.self)
         
-        var payload = Payload()
-        payload.fullName = "John Doe"
-        
-        let response = LoginResponse(user: UserDTO(fullName: "John Doe", email: "test@aa.ok"), accessToken: try req.jwt.sign(payload, kid: JWKIdentifier("Auth")), refreshToken: "1")
-        
-        return req.eventLoop.makeSucceededFuture(response)
+        return req.users
+            .find(email: loginRequest.email)
+            .unwrap(or: AuthenticationError.invalidEmailOrPassword)
+            .guard({ $0.isEmailVerified }, else: AuthenticationError.emailIsNotVerified)
+            .flatMap { user -> EventLoopFuture<User> in
+                return req.password
+                    .async
+                    .verify(loginRequest.password, created: user.passwordHash)
+                    .guard({ $0 == true }, else: AuthenticationError.invalidEmailOrPassword)
+                    .transform(to: user)
+        }
+        .flatMap { user -> EventLoopFuture<User> in
+            do {
+                return try req.refreshTokens.delete(for: user.requireID()).transform(to: user)
+            } catch {
+                return req.eventLoop.makeFailedFuture(error)
+            }
+        }
+        .flatMap { user in
+            do {
+                let token = RandomGenerator.getRandomString(32)
+                let refreshToken = try RefreshToken(token: SHA256.hash(token), userID: user.requireID())
+                
+                return req.refreshTokens
+                    .create(refreshToken)
+                    .flatMapThrowing {
+                        try LoginResponse(
+                            user: UserDTO(from: user),
+                            accessToken: req.jwt.sign(Payload(with: user)),
+                            refreshToken: token
+                        )
+                }
+            } catch {
+                return req.eventLoop.makeFailedFuture(error)
+            }
+        }
     }
     
     private func verifyEmail(_ req: Request) throws -> EventLoopFuture<HTTPStatus> {

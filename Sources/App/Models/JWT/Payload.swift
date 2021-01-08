@@ -3,7 +3,7 @@ import JWT
 
 struct Payload: JWTPayload, Authenticatable {
     // User-releated stuff
-    var userID: Int?
+    var userID: UUID
     var fullName: String?
     var email: String?
     var isAdmin: Bool?
@@ -13,5 +13,12 @@ struct Payload: JWTPayload, Authenticatable {
     
     func verify(using signer: JWTSigner) throws {
         try self.exp.verifyNotExpired()
+    }
+    
+    init(with user: User) throws {
+        self.userID = try user.requireID()
+        self.fullName = user.fullName
+        self.email = user.email
+        self.exp = ExpirationClaim(value: Date().addingTimeInterval(Constants.ACCESS_TOKEN_LIFETIME))
     }
 }

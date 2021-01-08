@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 final class EmailToken: Model {
-    static let schema = "user_email_tokens"
+    static let schema = "email_tokens"
     
     @ID(key: .id)
     var id: UUID?
