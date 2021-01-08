@@ -22,6 +22,7 @@ extension Application {
                     $0.repositories.use { DatabaseUserRepository(database: $0.db) }
                     $0.repositories.use { DatabaseRefreshTokenRepository(database: $0.db) }
                     $0.repositories.use { DatabaseEmailTokenRepository(database: $0.db) }
+                    $0.repositories.use { DatabasePasswordTokenRepository(database: $0.db) }
                 }
             }
             
@@ -32,6 +33,7 @@ extension Application {
             var makeUserRepository: ((Application) -> UserRepository)?
             var makeRefreshTokenRepository: ((Application) -> RefreshTokenRepository)?
             var makeEmailTokenRepository: ((Application) -> EmailTokenRepository)?
+            var makePasswordTokenRepository: ((Application) -> PasswordTokenRepository)?
             init() { }
         }
         

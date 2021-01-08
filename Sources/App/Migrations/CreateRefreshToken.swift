@@ -2,7 +2,7 @@ import Fluent
 
 struct CreateRefreshToken: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("refresh_tokens")
+        return database.schema("auth_refresh_tokens")
             .id()
             .field("token", .string)
             .field("user_id", .uuid, .references("users", "id", onDelete: .cascade))
@@ -14,6 +14,6 @@ struct CreateRefreshToken: Migration {
     }
     
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("refresh_tokens").delete()
+        return database.schema("auth_refresh_tokens").delete()
     }
 }

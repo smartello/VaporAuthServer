@@ -11,13 +11,7 @@ func routes(_ app: Application) throws {
         
         //let token = req.headers.bearerAuthorization!.token
             //req.headers.first(name: "Token")!
-        var verifiedString: String
-        do {
-            //var payload = try app.jwt.signers.verify(token, as: Payload.self)
-            verifiedString = "Welcome \(payload.fullName ?? "anonymous")"
-        } catch {
-            verifiedString = "No access"
-        }
+        let verifiedString = "Welcome \(payload.fullName ?? "anonymous")"
         
         return "Hello, world! " + verifiedString
     }

@@ -21,7 +21,7 @@ final class RefreshToken: Model {
     
     init() {}
     
-    init(id: UUID? = nil, token: String, userID: UUID, expiresAt: Date = Date().addingTimeInterval(Constants.REFRESH_TOKEN_LIFETIME), issuedAt: Date = Date()) {
+    init(id: UUID? = nil, userID: UUID, token: String, expiresAt: Date = Date().addingTimeInterval(Constants.REFRESH_TOKEN_LIFETIME), issuedAt: Date = Date()) {
         self.id = id
         self.token = token
         self.$user.id = userID

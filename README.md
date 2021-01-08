@@ -1,18 +1,21 @@
 <p align="center">
     <a href="LICENSE">
-        <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square" alt="MIT License">
+        <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square" alt="MIT License" />
     </a>
     <a href="https://github.com/smartello/VaporAuthServer/actions">
-        <img src="https://github.com/smartello/VaporAuthServer/workflows/Swift/badge.svg?style=flat-square" alt="Continuous Integration">
+        <img src="https://github.com/smartello/VaporAuthServer/workflows/Swift/badge.svg?style=flat-square" alt="Continuous Integration" />
     </a>
     <a href="https://swift.org">
-        <img src="https://img.shields.io/badge/swift-5.3-brightgreen.svg?style=flat-square" alt="Swift 5.3">
+        <img src="https://img.shields.io/badge/swift-5.3-brightgreen.svg?style=flat-square" alt="Swift 5.3" />
+    </a>
+    <a href="https://vapor.codes">
+        <img src="https://img.shields.io/badge/vapor-4.0-blue.svg?style=flat-square" alt="Vapor 4" />
     </a>
     <span>
-        <img src="https://img.shields.io/github/release/smartello/VaporAuthServer?style=flat-square" alt="Twitter">
+        <img src="https://img.shields.io/github/release/smartello/VaporAuthServer?style=flat-square" />
     </span>
     <span>
-        <img src="https://img.shields.io/github/last-commit/smartello/VaporAuthServer?style=flat-square" alt="Twitter">
+        <img src="https://img.shields.io/github/last-commit/smartello/VaporAuthServer?style=flat-square" />
     </span>
 </p>
 
