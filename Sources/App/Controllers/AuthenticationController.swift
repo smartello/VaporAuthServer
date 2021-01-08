@@ -1,13 +1,16 @@
 import Vapor
 import Fluent
 import JWT
-import VaporSMTPKit
-import SMTPKitten
 
 struct AuthenticationController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         routes.post("register", use: register)
         routes.post("login", use: login)
+        
+        routes.group("email-verification") { emailVerificationRoutes in
+            //emailVerificationRoutes.post("", use: sendEmailVerification)
+            emailVerificationRoutes.get("", use: verifyEmail)
+        }
     }
     
     func register(_ req: Request) throws -> EventLoopFuture<HTTPStatus> {
@@ -23,24 +26,7 @@ struct AuthenticationController: RouteCollection {
             .flatMapThrowing { try User(from: registerRequest, hash: $0) }
             .flatMap { user in
                 req.users.create(user)
-                    .flatMap {
-                        let email = Mail(
-                            from: MailUser(name: req.application.config.emailName, email: req.application.config.emailAddress),
-                            to: [ MailUser(name: user.fullName, email: user.email) ],
-                            subject: "Your new mail server!",
-                            contentType: .plain,
-                            text: "You've set up mail!"
-                        )
-                        
-                        return req.application.sendMail(email, withCredentials: req.application.config.smtpCredentials)
-                            .flatMapError { error in
-                                print("Can't send email to \(email.to.first!.email). Problem: \(error.localizedDescription)")
-                                return req.eventLoop.makeFailedFuture(error)
-                            }
-                            .map {
-                                print("Email sent to \(email.to.first!.email)")
-                            }
-                    }
+                    .flatMap { req.emailVerifier.verify(for: user) }
                     .flatMapErrorThrowing {
                         if let dbError = $0 as? DatabaseError, dbError.isConstraintFailure {
                             throw AuthenticationError.emailAlreadyExists
@@ -64,6 +50,21 @@ struct AuthenticationController: RouteCollection {
         return req.eventLoop.makeSucceededFuture(response)
     }
     
-    
+    private func verifyEmail(_ req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        let token = try req.query.get(String.self, at: "token")
+        
+        let hashedToken = SHA256.hash(token)
+        
+        return req.emailTokens
+            .find(token: hashedToken)
+            .unwrap(or: AuthenticationError.emailTokenNotFound)
+            .flatMap { req.emailTokens.delete($0).transform(to: $0) }
+            .guard({ $0.expiresAt > Date() },
+                   else: AuthenticationError.emailTokenHasExpired)
+            .flatMap {
+                req.users.set(\.$isEmailVerified, to: true, for: $0.$user.id)
+        }
+        .transform(to: .ok)
+    }
 }
         
