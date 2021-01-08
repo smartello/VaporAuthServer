@@ -188,7 +188,7 @@ struct AuthenticationController: RouteCollection {
     }
     
     private func recoverAccount(_ req: Request) throws -> EventLoopFuture<HTTPStatus> {
-        try RecoverAccountRequest.validate(req)
+        try RecoverAccountRequest.validate(content: req)
         let content = try req.content.decode(RecoverAccountRequest.self)
         
         guard content.password == content.confirmPassword else {

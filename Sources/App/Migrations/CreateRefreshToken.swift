@@ -5,7 +5,7 @@ struct CreateRefreshToken: Migration {
         return database.schema("auth_refresh_tokens")
             .id()
             .field("token", .string)
-            .field("user_id", .uuid, .references("users", "id", onDelete: .cascade))
+            .field("user_id", .uuid, .references("auth_users", "id", onDelete: .cascade))
             .field("expires_at", .datetime)
             .field("issued_at", .datetime)
             .unique(on: "token")

@@ -41,7 +41,8 @@ public func configure(_ app: Application) throws {
     app.migrations.add([
         CreateUser(),
         CreateRefreshToken(),
-        CreateEmailToken()
+        CreateEmailToken(),
+        CreatePasswordToken()
     ])
     
     // MARK: Repositories

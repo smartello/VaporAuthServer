@@ -20,8 +20,8 @@
 </p>
 
 # VaporAuthServer
-The intention of this work is to create a JWT based auth server for swift decoupled from database, email agent and etc.
+The intention of this work is to create a JWT based auth server API for [Vapor 4](https://vapor.codes) decoupled from database, email agent and etc.
 
-The project is in the active development phase right now: tests don't pass (and barely present), there's more coupling than needed, some useless packages and it's a ready-to-use vapor app which is not a final goal. Ultimately, it must be a package that one will set as a dependency, map routes and start their own app.
+The project is in the active development phase right now: tests don't pass (and barely present), there's more coupling than needed, some useless packages and it's a ready-to-use vapor app which is not a final goal. Ultimately, it must be a package that one will set as a dependency, map routes and start their own app. The server may then be a central authentication node for multiple projects (think of [Auth0](https://auth0.com)) or be incorporated into the app itself
 
 Refer to the Projects page to figure out what is goint on.
