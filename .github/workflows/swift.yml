@@ -12,6 +12,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Generate LinuxMain.swift
+      run: swift test --generate-linuxmain
     - name: Build
       run: swift build -v
     - name: Run tests
