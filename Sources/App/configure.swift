@@ -30,13 +30,15 @@ public func configure(_ app: Application) throws {
     
     // MARK: Database
     // Configure PostgreSQL database
-    app.databases.use(
-        .postgres(
-            hostname: Environment.get("POSTGRES_HOSTNAME") ?? "localhost",
-            username: Environment.get("POSTGRES_USERNAME") ?? "docker",
-            password: Environment.get("POSTGRES_PASSWORD") ?? "docker",
-            database: Environment.get("POSTGRES_DATABASE") ?? "auth"
-    ), as: .psql)
+    if app.environment != .testing {
+        app.databases.use(
+            .postgres(
+                hostname: Environment.get("POSTGRES_HOSTNAME") ?? "localhost",
+                username: Environment.get("POSTGRES_USERNAME") ?? "docker",
+                password: Environment.get("POSTGRES_PASSWORD") ?? "docker",
+                database: Environment.get("POSTGRES_DATABASE") ?? "auth"
+        ), as: .psql)
+    }
     
     app.migrations.add([
         CreateUser(),
@@ -45,26 +47,23 @@ public func configure(_ app: Application) throws {
         CreatePasswordToken()
     ])
     
+    // MARK: Middleware
+    app.middleware = .init()
+    app.middleware.use(ErrorMiddleware.custom(environment: app.environment))
+    
     // MARK: Repositories
     app.repositories.use(.database)
     
     // MARK: App Config
-    app.config = .environment
+    app.config = AppConfig(app.environment)
     
-    //var env = try Environment.detect()
-    //try LoggingSystem.bootstrap(from: &env)
-
     //let app = Application(env)
     //defer { app.shutdown() }
-/*
-    app.smtp.configuration.hostname = "test.mailu.io"
-    //app.smtp.configuration.port = 25
-    app.smtp.configuration.helloMethod = .ehlo
-    app.smtp.configuration.secure = .startTlsWhenAvailable
-//    app.smtp.configuration.
-    app.smtp.configuration.username = "admin@test.mailu.io"
-    app.smtp.configuration.password = "letmein"*/
-//    app.jwt.signers.
+
+    
+    if app.environment == .development {
+        try app.autoMigrate().wait()
+    }
     
     // register routes
     try routes(app)

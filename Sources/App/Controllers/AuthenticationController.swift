@@ -47,7 +47,6 @@ struct AuthenticationController: RouteCollection {
                         }
                         throw $0
                     }
-                    
         }
         .transform(to: .created)
     }

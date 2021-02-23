@@ -9,6 +9,22 @@ struct AppConfig {
     let emailName: String
     let smtpCredentials: SMTPCredentials
     
+    init(_ environment: Environment) {
+        switch environment {
+            case .testing: self = .dummy
+            default: self = .environment
+        }
+    }
+    
+    init(frontendURL: String, apiURL: String, noReplyEmail: String, emailAddress: String, emailName: String, smtpCredentials: SMTPCredentials) {
+        self.frontendURL = frontendURL
+        self.apiURL = apiURL
+        self.noReplyEmail = noReplyEmail
+        self.emailAddress = emailAddress
+        self.emailName = emailName
+        self.smtpCredentials = smtpCredentials
+    }
+    
     static var environment: AppConfig {
         guard
             let frontendURL = Environment.get("SITE_FRONTEND_URL"),
@@ -34,6 +50,12 @@ struct AppConfig {
         )
         
         return .init(frontendURL: frontendURL, apiURL: apiURL, noReplyEmail: noReplyEmail, emailAddress: emailAddress, emailName: emailName, smtpCredentials: smtpCredentials)
+    }
+    
+    static var dummy: AppConfig {
+        let smtpCredentials = SMTPCredentials(hostname: "", port: 25, ssl: .insecure, email: "", password: "")
+        
+        return .init(frontendURL: "", apiURL: "", noReplyEmail: "", emailAddress: "", emailName: "", smtpCredentials: smtpCredentials)
     }
 }
 

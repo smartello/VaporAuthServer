@@ -7,12 +7,12 @@ class TestRealm {
     let app: Application
     
     // Repositories
-    //private var tokenRepository: TestRefreshTokenRepository
-    //private var userRepository: TestUserRepository
-    //private var emailTokenRepository: TestEmailTokenRepository
-    //private var passwordTokenRepository: TestPasswordTokenRepository
+    private var tokenRepository: TestRefreshTokenRepository
+    private var userRepository: TestUserRepository
+    private var emailTokenRepository: TestEmailTokenRepository
+    private var passwordTokenRepository: TestPasswordTokenRepository
     
-    private var refreshtokens: [RefreshToken] = []
+    private var refreshTokens: [RefreshToken] = []
     private var users: [User] = []
     private var emailTokens: [EmailToken] = []
     private var passwordTokens: [PasswordToken] = []
@@ -22,10 +22,10 @@ class TestRealm {
         
         try app.jwt.signers.use(.es256(key: .generate()))
         
-        //self.tokenRepository = TestRefreshTokenRepository(tokens: refreshtokens, eventLoop: app.eventLoopGroup.next())
-        //self.userRepository = TestUserRepository(users: users, eventLoop: app.eventLoopGroup.next())
-        //self.emailTokenRepository = TestEmailTokenRepository(tokens: emailTokens, eventLoop: app.eventLoopGroup.next())
-        //self.passwordTokenRepository = TestPasswordTokenRepository(tokens: passwordTokens, eventLoop: app.eventLoopGroup.next())
+        self.tokenRepository = TestRefreshTokenRepository(tokens: refreshTokens, eventLoop: app.eventLoopGroup.next())
+        self.userRepository = TestUserRepository(users: users, eventLoop: app.eventLoopGroup.next())
+        self.emailTokenRepository = TestEmailTokenRepository(tokens: emailTokens, eventLoop: app.eventLoopGroup.next())
+        self.passwordTokenRepository = TestPasswordTokenRepository(tokens: passwordTokens, eventLoop: app.eventLoopGroup.next())
         
         //app.repositories.use { _ in self.tokenRepository }
         //app.repositories.use { _ in self.userRepository }

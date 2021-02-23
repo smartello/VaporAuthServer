@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 final class PasswordToken: Model {
-    static var schema: String = "user_password_tokens"
+    static var schema: String = "auth_password_tokens"
     
     @ID(key: .id)
     var id: UUID?
