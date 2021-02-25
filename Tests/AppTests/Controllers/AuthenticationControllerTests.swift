@@ -72,13 +72,30 @@ final class AuthenticationControllerTests: XCTestCase {
     }
     
     func testRegister() throws {
-        let reqContent = RegisterRequest(fullName: "Test User", email: "test@test.com", password: "12345678", confirmPassword: "12345678")
+        let userEmail = "test@test.com"
+        
+        let reqContent = RegisterRequest(fullName: "Test User", email: userEmail, password: "12345678", confirmPassword: "12345678")
         
         try testRealm!.app.test(.POST, "/api/register", beforeRequest: { req in
             try req.content.encode(reqContent)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .created)
             
+            //assume token has been sent
+            let user = try! testRealm!.app.repositories.users.find(email: userEmail).wait()!
+            let emailToken = try! testRealm!.app.repositories.emailTokens.find(userID: user.id!).wait()!
+            try testRealm!.app.test(.GET, "/api/emailVerification?token=\(emailToken.token)", afterResponse: {res in
+                //token must be hashed hence must not find it
+                XCTAssertEqual(res.status, .notFound)
+            })
+            
+            let newToken: String = "SomeRandomText"
+            emailToken.token = SHA256.hash(newToken)
+            try! emailToken.update(on: testRealm!.app.db).wait()
+            
+            try testRealm!.app.test(.GET, "/api/emailVerification?token=\(newToken)", afterResponse: {res in
+                XCTAssertEqual(res.status, .ok)
+            })
         })
     }
 }
