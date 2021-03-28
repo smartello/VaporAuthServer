@@ -96,6 +96,56 @@ final class AuthenticationControllerTests: XCTestCase {
             try testRealm!.app.test(.GET, "/api/emailVerification?token=\(newToken)", afterResponse: {res in
                 XCTAssertEqual(res.status, .ok)
             })
+            
+            // send the second request that should fail
+            let reqContent = RegisterRequest(fullName: "Test User", email: userEmail, password: "12345678", confirmPassword: "12345678")
+            try testRealm!.app.test(.POST, "/api/register", beforeRequest: { req in
+                try req.content.encode(reqContent)
+            }, afterResponse: { res in
+                XCTAssertEqual(res.status, .badRequest)
+                let error = try res.content.decode(ErrorResponse.self)
+                XCTAssertEqual(error.error, true)
+                XCTAssertEqual(error.reason, AuthenticationError.emailAlreadyExists.reason)
+            })
+        })
+    }
+    
+    func testLogin() throws {
+        let userEmail = "login@test.com"
+        let password = "12345678"
+        
+        let reqContent = RegisterRequest(fullName: "Test User", email: userEmail, password: password, confirmPassword: password)
+        
+        try testRealm!.app.test(.POST, "/api/register", beforeRequest: { req in
+            try req.content.encode(reqContent)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .created)
+            
+            let newToken: String = "SomeRandomText"
+            let user = try! testRealm!.app.repositories.users.find(email: userEmail).wait()!
+            let emailToken = try! testRealm!.app.repositories.emailTokens.find(userID: user.id!).wait()!
+            emailToken.token = SHA256.hash(newToken)
+            try! emailToken.update(on: testRealm!.app.db).wait()
+            try testRealm!.app.test(.GET, "/api/emailVerification?token=\(newToken)", afterResponse: {res in
+                XCTAssertEqual(res.status, .ok)
+                
+                let loginReqContent = LoginRequest(email: userEmail, password: password)
+                try testRealm!.app.test(.POST, "/api/login", beforeRequest: { req in
+                    try req.content.encode(loginReqContent)
+                }, afterResponse: {res in
+                    XCTAssertEqual(res.status, .ok)
+                })
+                
+                let loginFailureReqContent = LoginRequest(email: userEmail, password: "1234")
+                try testRealm!.app.test(.POST, "/api/login", beforeRequest: { req in
+                    try req.content.encode(loginFailureReqContent)
+                }, afterResponse: {res in
+                    XCTAssertEqual(res.status, .unauthorized)
+                    let error = try res.content.decode(ErrorResponse.self)
+                    XCTAssertEqual(error.error, true)
+                    XCTAssertEqual(error.reason, AuthenticationError.invalidEmailOrPassword.reason)
+                })
+            })
         })
     }
 }
